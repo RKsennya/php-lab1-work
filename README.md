@@ -1,118 +1,157 @@
-# Лабораторная работа по PHP
+# Лабораторная работа по HTTP-запросам
 
-## Инструкции по запуску проекта
+## Задание 1. Анализ HTTP-запросов
 
-1. Убедитесь, что на вашем компьютере установлен PHP.
-2. Для локальной разработки используйте сервер PHP, запустив команду:
+1. Перейдите по следующему адресу: [http://sandbox.usm.md/login](http://sandbox.usm.md/login).
+2. Откройте вкладку "Network" в инструментах разработчика браузера.
+3. Введите неверные данные для входа (например, username: `student`, password: `studentpass`).
+4. Проанализируйте запросы, которые были отправлены на сервер.
 
-    ```bash
-    php -S localhost:8000
-    ```
+### Ответы на вопросы:
+- **HTTP-метод**: POST
+- **Заголовки запроса**: 
+    - Content-Type
+    - User-Agent
+    - Accept
+    - и другие...
+- **Параметры запроса**: username, password
+- **Код состояния**: 401 (Unauthorized)
+- **Заголовки ответа**: Content-Type, Date, Server и другие...
 
-3. Откройте браузер и перейдите по адресу: [http://localhost:8000](http://localhost:8000).
+5. Повторите шаги с правильными данными для входа (username: `admin`, password: `password`).
 
-## Описание лабораторной работы
+## Задание 2. Составление HTTP-запросов
 
-В данной лабораторной работе выполнены основные задания по PHP:
-- Разница между `echo` и `print`.
-- Работа с переменными.
-- Арифметические операции.
-- Типы данных и их вывод с использованием функции `var_dump()`.
-- Интеграция PHP и HTML.
-- Вывод стихотворения с использованием тега `<pre>`.
-- Добавление документации с использованием PHPDoc.
+### 2.1. GET-запрос
 
----
+Составьте GET-запрос к серверу по адресу `http://sandbox.com`, указав в заголовке `User-Agent` ваше имя и фамилию.
 
-## Примеры использования проекта
-
-### Часть 1: Разница между `echo` и `print`
+Пример кода:
 
 ```php
 <?php
-echo "Это сообщение выведено с помощью echo.<br>";
-print "Это сообщение выведено с помощью print.<br>";
-?>
-Часть 2: Работа с переменными
-php
-Копировать код
-<?php
-$days = 288;
-$message = "Все возвращаются на работу!";
+// URL для GET-запроса
+$url = "http://sandbox.com";
 
-// С использованием конкатенации
-echo "В " . $days . " день, приблизительно ... " . $message . "<br>";
+// Инициализация cURL
+$ch = curl_init($url);
 
-// С использованием двойных кавычек
-echo "В $days день, приблизительно ... $message";
-?>
-Часть 3: Арифметические операции
-php
-Копировать код
-<?php
-$a = 10;
-$b = 5;
+// Установка заголовков
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "User-Agent: Имя Фамилия"  // Ваше имя и фамилия
+]);
 
-echo "Сложение: " . ($a + $b) . "<br>";
-echo "Вычитание: " . ($a - $b) . "<br>";
-echo "Умножение: " . ($a * $b) . "<br>";
-echo "Деление: " . ($a / $b) . "<br>";
-echo "Остаток от деления: " . ($a % $b) . "<br>";
-?>
-Часть 4: Типы данных и их вывод с использованием var_dump
-php
-Копировать код
-<?php
-$intVar = 42;
-$floatVar = 3.14;
-$stringVar = "Привет, PHP!";
-$boolVar = true;
+// Установка параметров для GET-запроса
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-// Вывод типов данных с помощью var_dump()
-var_dump($intVar);  // int(42)
-echo "<br>";
-var_dump($floatVar); // float(3.14)
-echo "<br>";
-var_dump($stringVar); // string(13) "Привет, PHP!"
-echo "<br>";
-var_dump($boolVar); // bool(true)
+// Выполнение запроса
+$response = curl_exec($ch);
+
+// Проверка на ошибки
+if(curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+} else {
+    echo "Ответ от сервера:\n";
+    echo $response;
+}
+
+// Закрытие cURL
+curl_close($ch);
 ?>
-Часть 5: Интеграция PHP и HTML
-php
-Копировать код
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Интеграция PHP и HTML</title>
-</head>
-<body>
-    <h1>Добро пожаловать, <?php echo "гость"; ?>!</h1>
-    <p>Сегодня: <?php echo date("Y-m-d"); ?></p>
-</body>
-</html>
-Часть 6: Вывод стихотворения с использованием тега <pre>
-php
-Копировать код
+
+2.2. POST-запрос
+Составьте POST-запрос к серверу по адресу http://sandbox.com/cars, указав в теле запроса следующие параметры:
+
 <?php
-echo "<pre>";
-echo "Волей Луны — всё выше, выше, \n";
-echo "Волей Луны — всё крепче, крепче! \n";
-echo "Волей Луны — и в песню, и в стих, \n";
-echo "И в невозможность — и в вечность! \n";
-echo "</pre>";
+// URL для POST-запроса
+$url = "http://sandbox.com/cars";
+
+// Данные для отправки в POST-запросе
+$data = [
+    'make' => 'Toyota',
+    'model' => 'Corolla',
+    'year' => 2020
+];
+
+// Инициализация cURL
+$ch = curl_init($url);
+
+// Установка параметров для POST-запроса
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+
+// Выполнение запроса
+$response = curl_exec($ch);
+
+// Проверка на ошибки
+if(curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+} else {
+    echo "Ответ от сервера:\n";
+    echo $response;
+}
+
+// Закрытие cURL
+curl_close($ch);
 ?>
+
+2.3. PUT-запрос
+Составьте PUT-запрос к серверу по адресу http://sandbox.com/cars/1, указав в заголовке User-Agent ваше имя и фамилию, в заголовке Content-Type значение application/json, и в теле запроса параметры:
+<?php
+// URL для PUT-запроса
+$url = "http://sandbox.com/cars/1";
+
+// Данные для отправки в PUT-запросе
+$data = [
+    'make' => 'Toyota',
+    'model' => 'Corolla',
+    'year' => 2021
+];
+
+// Инициализация cURL
+$ch = curl_init($url);
+
+// Установка заголовков
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'User-Agent: Ivan Ivanov',
+    'Content-Type: application/json'
+]);
+
+// Установка параметров для PUT-запроса
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+// Выполнение запроса
+$response = curl_exec($ch);
+
+// Проверка на ошибки
+if(curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+} else {
+    echo "Ответ от сервера:\n";
+    echo $response;
+}
+
+// Закрытие cURL
+curl_close($ch);
+?>
+
+Задание 3. Дополнительное задание. HTTP_Quest
+Перейдите на сервер http://sandbox.usm.md/quest.
+Отправьте POST-запрос с заголовком User-Agent как ваше имя и фамилия.
+
+curl -X POST http://sandbox.usm.md/quest -H "User-Agent: Имя Фамилия"
+
 Ответы на контрольные вопросы
-Что делает функция echo в PHP?
+Какой метод HTTP был использован для отправки запроса?
+Для анализа запросов использовался метод POST для отправки данных.
+Какие заголовки были отправлены в запросе?
+В запросах были отправлены заголовки User-Agent, Content-Type, Authorization и другие в зависимости от запроса.
+Какие параметры были отправлены в запросе?
+В запросах отправлялись параметры, такие как username, password, make, model, и другие данные в теле запроса.
+Какой код состояния был возвращен сервером?
+В случае успешного запроса сервер может возвращать код состояния 200 (OK), 201 (Created), а для ошибок — 401 (Unauthorized), 404 (Not Found) и другие.
 
-Функция echo используется для вывода текста на экран. Она может принимать несколько параметров и выводить их через запятую.
-Что делает функция print в PHP?
 
-Функция print работает аналогично echo, но возвращает значение 1, что делает ее пригодной для использования в выражениях.
-Как выполнить арифметические операции в PHP?
-
-В PHP доступны стандартные арифметические операции: сложение, вычитание, умножение, деление и получение остатка от деления, например, $a + $b.
-Какие типы данных можно использовать в PHP?
-
-В PHP существует несколько типов данных: целые числа (int), вещественные числа (float), строки (string), булевы значения (bool), массивы и объекты.
